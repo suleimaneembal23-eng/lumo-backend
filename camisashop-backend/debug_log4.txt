@@ -1,0 +1,18 @@
+[dotenv@17.2.0] injecting env (8) from .env (tip: 🔐 encrypt with dotenvx: https://dotenvx.com)
+C:\Users\servi\camisashop-backend\camisashop-backend\routes\orderRoutes.js:10
+  deleteOrder,
+  ^
+
+SyntaxError: Identifier 'deleteOrder' has already been declared
+    at wrapSafe (node:internal/modules/cjs/loader:1486:18)
+    at Module._compile (node:internal/modules/cjs/loader:1528:20)
+    at Object..js (node:internal/modules/cjs/loader:1706:10)
+    at Module.load (node:internal/modules/cjs/loader:1289:32)
+    at Function._load (node:internal/modules/cjs/loader:1108:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)
+    at Module.require (node:internal/modules/cjs/loader:1311:12)
+    at require (node:internal/modules/helpers:136:16)
+    at Object.<anonymous> (C:\Users\servi\camisashop-backend\camisashop-backend\app.js:42:21)
+
+Node.js v22.14.0

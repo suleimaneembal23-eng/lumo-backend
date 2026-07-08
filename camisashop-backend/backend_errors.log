@@ -1,0 +1,77 @@
+
+[2026-01-20T22:49:02.978Z] Error updating product 6911b5021b7b60b6b1677a64:
+Request Body: {
+  "name": "Camisa Benfica",
+  "category": [
+    "Camisas de Equipas",
+    "Portugal"
+  ],
+  "description": "Camisa de Benfica Da Epoca 2025/2026",
+  "price": 29,
+  "originalPrice": 39,
+  "size": [
+    "S",
+    "M",
+    "L",
+    "XL"
+  ],
+  "inStock": true,
+  "featured": true,
+  "isNew": true,
+  "onSale": true,
+  "isLimited": false,
+  "technicalDetails": "Tecnologia: Adidas AEROREADY, que gere a humidade e mantém os atletas secos.\n\nComposição: 100% poliéster reciclado.\n\nDesign:\nCor encarnada clássica.\n\nGola destacada a branco e preto.\n\nAs três riscas da Adidas a branco nos ombros.\n\nUm grafismo de uma baliza vintage a preto e branco com a sigla \"SLB\" a bold na parte inferio",
+  "image": "http://localhost:5000/uploads/1762988502084-77575132.jpg",
+  "gallery": [],
+  "salesCount": 0
+}
+Error: {
+  "message": "Validation failed: category.1: `Portugal` is not a valid enum value for path `category`.",
+  "errors": {},
+  "_message": "Validation failed"
+}
+--------------------------
+
+[2026-02-06T19:39:39.253Z] Error updating product 6986422954f70dd0177a5da6:
+Request Body: {
+  "name": "Teste Vipe",
+  "category": [
+    "Acessórios"
+  ],
+  "size": [
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL"
+  ],
+  "description": "dfgehtgrwtwfrwhyjy",
+  "image": "http://localhost:5000/uploads/1770406439397-625474376.jpg"
+}
+Error: {
+  "stack": "ReferenceError: userRole is not defined\n    at exports.updateProduct (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\controllers\\productController.js:92:9)\n    at Layer.handleRequest (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\route.js:157:13)\n    at C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\middleware\\verifyToken.js:36:7\n    at Layer.handleRequest (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\index.js:295:15",
+  "message": "userRole is not defined"
+}
+--------------------------
+
+[2026-02-06T19:39:45.845Z] Error updating product 6986422954f70dd0177a5da6:
+Request Body: {
+  "name": "Teste Vipe",
+  "category": [
+    "Acessórios"
+  ],
+  "size": [
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL"
+  ],
+  "description": "dfgehtgrwtwfrwhyjye",
+  "image": "http://localhost:5000/uploads/1770406439397-625474376.jpg"
+}
+Error: {
+  "stack": "ReferenceError: userRole is not defined\n    at exports.updateProduct (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\controllers\\productController.js:92:9)\n    at Layer.handleRequest (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\route.js:157:13)\n    at C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\middleware\\verifyToken.js:36:7\n    at Layer.handleRequest (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at next (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\route.js:157:13)\n    at Route.dispatch (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\route.js:117:3)\n    at handle (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\index.js:435:11)\n    at Layer.handleRequest (C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\lib\\layer.js:152:17)\n    at C:\\Users\\servi\\camisashop-backend\\camisashop-backend\\node_modules\\router\\index.js:295:15",
+  "message": "userRole is not defined"
+}
+--------------------------

@@ -1,0 +1,134 @@
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = process.env.JWT_SECRET || "Comiocudequemleu";
+
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, JWT_SECRET, { expiresIn: "7d" });
+};
+
+// Registro de cliente
+const registerClient = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const userExists = await User.findOne({ email });
+    if (userExists)
+      return res.status(400).json({ message: "Email já registrado" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: "client",
+    });
+
+    res.status(201).json({
+      _id: user._id,
+      userId: user._id, // ← ADICIONADO para compatibilidade
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id, user.role),
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Erro ao registrar cliente",
+      error: err.message,
+    });
+  }
+};
+
+// Registro de admin
+const registerAdmin = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const userExists = await User.findOne({ email });
+    if (userExists)
+      return res.status(400).json({ message: "Email já registrado" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: "admin",
+    });
+
+    res.status(201).json({
+      _id: admin._id,
+      userId: admin._id, // ← ADICIONADO para compatibilidade
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+      token: generateToken(admin._id, admin.role),
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Erro ao registrar admin",
+      error: err.message,
+    });
+  }
+};
+
+// Login unificado com bloqueio de cliente
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(401).json({ message: "Credenciais inválidas" });
+
+    // Bloqueio de clientes
+    if (user.role === "client" && user.isBlocked) {
+      return res.status(403).json({ 
+        message: "Conta bloqueada! Em caso de dúvida, solicite o suporte. Obrigado!" 
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(401).json({ message: "Credenciais inválidas" });
+
+    // Calcular se a subscrição está ativa
+    const plan = user.vendorInfo?.subscription?.plan;
+    const expiryDate = user.vendorInfo?.subscription?.expiryDate;
+    const isActive = plan === 'VIP' && expiryDate && new Date(expiryDate) > new Date();
+
+    const vendorInfo = user.role === 'vendor' ? {
+      storeName: user.vendorInfo?.storeName || '',
+      slug: user.vendorInfo?.slug || '',
+      description: user.vendorInfo?.description || '',
+      logo: user.vendorInfo?.logo || null,
+      banner: user.vendorInfo?.banner || null,
+      subscription: {
+        plan: plan || 'Free',
+        expiryDate: expiryDate || null,
+        isActive: !!isActive
+      }
+    } : null;
+
+    res.json({
+      _id: user._id,
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      vendorInfo,
+      token: generateToken(user._id, user.role),
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Erro ao fazer login",
+      error: err.message,
+    });
+  }
+};
+
+module.exports = { registerClient, registerAdmin, login };
