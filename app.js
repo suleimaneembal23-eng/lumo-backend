@@ -55,7 +55,7 @@ app.use((req, res, next) => {
 // 🔹 CORS configurado
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173", "https://lumobissau.netlify.app"],
+    origin: ["http://localhost:3000", "http://localhost:5173", "https://lumobissau.netlify.app", "https://lumobissau.com", "https://www.lumobissau.com"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
