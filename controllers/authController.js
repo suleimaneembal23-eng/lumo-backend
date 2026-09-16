@@ -46,11 +46,40 @@ const registerClient = async (req, res) => {
 const registerAdmin = async (req, res) => {
   try {
     const { name, email, password, masterSecret } = req.body;
+    const reqAdminId = req.user.id; // Pegar o ID do admin que está a fazer o pedido
+
+    const currentAdmin = await User.findById(reqAdminId);
+    if (!currentAdmin) {
+        return res.status(404).json({ message: "Administrador atual não encontrado." });
+    }
+
+    // Verificar se está bloqueado
+    if (currentAdmin.adminLockUntil && currentAdmin.adminLockUntil > new Date()) {
+        const hoursLeft = Math.ceil((currentAdmin.adminLockUntil - new Date()) / (1000 * 60 * 60));
+        return res.status(429).json({ message: `Ação bloqueada. Demasiadas tentativas. Tente novamente daqui a ${hoursLeft} horas.` });
+    }
 
     const SERVER_MASTER_SECRET = process.env.MASTER_ADMIN_SECRET || "Lumo2026MasterKey!";
+    
+    // Se falhar a Chave Mestra
     if (masterSecret !== SERVER_MASTER_SECRET) {
-      return res.status(403).json({ message: "Chave Mestra inválida. Acesso negado." });
+      currentAdmin.failedAdminAttempts = (currentAdmin.failedAdminAttempts || 0) + 1;
+      let errorMsg = "Chave Mestra inválida.";
+      
+      if (currentAdmin.failedAdminAttempts >= 5) {
+          currentAdmin.adminLockUntil = new Date(Date.now() + 24 * 60 * 60 * 1000); // Bloqueia por 24h
+          errorMsg = "Excedeu as 5 tentativas. Criação de administradores bloqueada por 24 horas.";
+      } else {
+          errorMsg = `Chave Mestra inválida. Restam ${5 - currentAdmin.failedAdminAttempts} tentativas.`;
+      }
+      await currentAdmin.save();
+      return res.status(403).json({ message: errorMsg });
     }
+
+    // Se acertou a Chave Mestra, limpa o contador
+    currentAdmin.failedAdminAttempts = 0;
+    currentAdmin.adminLockUntil = null;
+    await currentAdmin.save();
 
     const userExists = await User.findOne({ email });
     if (userExists)

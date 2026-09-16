@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema({
   isBlocked: { type: Boolean, default: false }, // bloqueio do cliente
 
   // -------------------------------------------------------------
+  // 🛡️ SEGURANÇA E BLOQUEIOS
+  // -------------------------------------------------------------
+  failedAdminAttempts: { type: Number, default: 0 },
+  adminLockUntil: { type: Date, default: null },
+
+  // -------------------------------------------------------------
   // 🚀 NOVOS CAMPOS PARA A GESTÃO DE PERFIL E PREFERÊNCIAS
   // -------------------------------------------------------------
 
