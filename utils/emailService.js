@@ -32,22 +32,23 @@ const generateItemsListHtml = (order) => {
 
 exports.sendOrderConfirmation = async (user, order) => {
   try {
+    const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
     const mailOptions = {
-      from: `"Lumo" <${process.env.EMAIL_USER}>`,
+      from: `"Lumo Oficial" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: `🎉 A tua encomenda #${order._id.toString().slice(-6).toUpperCase()} está confirmada!`,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb;">
           
           <!-- Header -->
-          <div style="background-color: #2563eb; padding: 40px 20px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Obrigado, ${user.name.split(' ')[0]}!</h1>
-            <p style="color: #bfdbfe; margin-top: 10px; font-size: 16px;">Recebemos a tua encomenda com sucesso.</p>
+          <div style="background-color: #0f172a; padding: 40px 20px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 2px;">L U M O</h1>
+            <p style="color: #94a3b8; margin-top: 10px; font-size: 16px;">Obrigado, ${user.name.split(' ')[0]}!</p>
           </div>
           
           <div style="padding: 30px;">
             <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-              A tua compra está a ser processada pela nossa equipa. Abaixo podes encontrar os detalhes do que acabaste de encomendar:
+              Recebemos a tua encomenda com sucesso. A tua compra está a ser processada pela nossa equipa. Abaixo podes encontrar os detalhes do que acabaste de encomendar:
             </p>
             
             <!-- Detalhes Encomenda -->
@@ -79,7 +80,7 @@ exports.sendOrderConfirmation = async (user, order) => {
 
             <!-- CTA Button -->
             <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
-              <a href="http://localhost:3000/track-order" style="background-color: #000000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">
+              <a href="${FRONTEND_URL}/track-order" style="background-color: #0f172a; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; letter-spacing: 1px;">
                 Rastrear Encomenda
               </a>
               <p style="color: #94a3b8; font-size: 12px; margin-top: 15px;">
@@ -108,6 +109,7 @@ exports.sendOrderConfirmation = async (user, order) => {
 
 exports.sendNewOrderAdminNotification = async (order) => {
   try {
+    const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
     const mailOptions = {
       from: `"Sistema Lumo" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
@@ -131,7 +133,7 @@ exports.sendNewOrderAdminNotification = async (order) => {
           </div>
 
           <p style="text-align: center;">
-            <a href="http://localhost:3000/admin/dashboard/orders" style="background-color: #1f2937; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            <a href="${FRONTEND_URL}/admin/dashboard/orders" style="background-color: #1f2937; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
               Gerir Encomenda no Painel
             </a>
           </p>
