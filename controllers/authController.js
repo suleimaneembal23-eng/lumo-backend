@@ -42,10 +42,15 @@ const registerClient = async (req, res) => {
   }
 };
 
-// Registro de admin
+// Registro de admin (Protegido por Chave Mestra)
 const registerAdmin = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, masterSecret } = req.body;
+
+    const SERVER_MASTER_SECRET = process.env.MASTER_ADMIN_SECRET || "Lumo2026MasterKey!";
+    if (masterSecret !== SERVER_MASTER_SECRET) {
+      return res.status(403).json({ message: "Chave Mestra inválida. Acesso negado." });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists)
@@ -131,4 +136,32 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { registerClient, registerAdmin, login };
+// Alterar Senha (Usuário Autenticado)
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id; // Pegue o ID a partir do token verificado
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Utilizador não encontrado" });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "A senha atual está incorreta" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: "Senha atualizada com sucesso!" });
+  } catch (err) {
+    res.status(500).json({
+      message: "Erro ao atualizar senha",
+      error: err.message,
+    });
+  }
+};
+
+module.exports = { registerClient, registerAdmin, login, changePassword };
