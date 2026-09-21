@@ -64,6 +64,9 @@ router.post("/vendor", verifyToken(["vendor", "admin"]), async (req, res) => {
 // 🔒 Rotas Protegidas — Admin
 // -----------------------------------------------------------------
 
+// Rota para obter produtos relacionados
+router.get("/:id/related", getRelatedProducts);
+
 // Rota para obter um produto por ID (público + admin)
 router.get("/:id", getProductById);
 
