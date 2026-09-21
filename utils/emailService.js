@@ -1,12 +1,7 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
+const SENDER_EMAIL = 'Lumo Oficial <encomendas@lumobissau.com>';
 
 const generateItemsListHtml = (order) => {
   let itemsHtml = '';
@@ -33,8 +28,9 @@ const generateItemsListHtml = (order) => {
 exports.sendOrderConfirmation = async (user, order) => {
   try {
     const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
-    const mailOptions = {
-      from: `"Lumo Oficial" <${process.env.EMAIL_USER}>`,
+    
+    const { data, error } = await resend.emails.send({
+      from: SENDER_EMAIL,
       to: user.email,
       subject: `🎉 A tua encomenda #${order._id.toString().slice(-6).toUpperCase()} está confirmada!`,
       html: `
@@ -98,21 +94,28 @@ exports.sendOrderConfirmation = async (user, order) => {
 
         </div>
       `,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
-    console.log(`E-mail de confirmação enviado com sucesso para ${user.email}`);
-  } catch (error) {
-    console.error('Erro ao enviar e-mail de confirmação:', error);
+    if (error) {
+      console.error('Resend API Error (Client Email):', error);
+      return;
+    }
+
+    console.log(`E-mail de confirmação enviado via Resend para ${user.email}`);
+  } catch (err) {
+    console.error('Erro ao tentar enviar o email:', err);
   }
 };
 
 exports.sendNewOrderAdminNotification = async (order) => {
   try {
     const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
-    const mailOptions = {
-      from: `"Sistema Lumo" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
+    // Usa um e-mail base caso a config ainda não exista (fallback)
+    const adminDestino = process.env.EMAIL_USER || 'suleimaneembal23@gmail.com'; 
+
+    const { data, error } = await resend.emails.send({
+      from: SENDER_EMAIL,
+      to: adminDestino,
       subject: `🚨 ALERTA DE VENDA - ${order.totalPrice} FCFA (Pedido #${order._id.toString().slice(-6).toUpperCase()})`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border-top: 4px solid #16a34a; padding: 20px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -139,12 +142,16 @@ exports.sendNewOrderAdminNotification = async (order) => {
           </p>
         </div>
       `,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
-    console.log('Notificação de nova venda enviada para o admin.');
-  } catch (error) {
-    console.error('Erro ao enviar e-mail para o admin:', error);
+    if (error) {
+      console.error('Resend API Error (Admin Email):', error);
+      return;
+    }
+
+    console.log('Notificação de nova venda enviada ao admin via Resend.');
+  } catch (err) {
+    console.error('Erro ao enviar e-mail para o admin:', err);
   }
 };
 
