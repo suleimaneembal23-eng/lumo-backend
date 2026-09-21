@@ -237,11 +237,12 @@ exports.getRelatedProducts = async (req, res) => {
       return res.status(404).json({ message: "Produto não encontrado." });
     }
 
-    // Achar produtos da mesma categoria, excluindo o produto atual
+    // Achar produtos da mesma categoria principal, excluindo o produto atual
     let query = { _id: { $ne: id } };
     
     if (product.category && product.category.length > 0) {
-        query.category = { $in: product.category };
+        // Usa apenas a primeira categoria (principal) para não misturar produtos
+        query.category = product.category[0];
     }
 
     // Limitar a 4 produtos
