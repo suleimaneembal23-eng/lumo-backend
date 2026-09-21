@@ -137,6 +137,10 @@ const login = async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: "Credenciais inválidas" });
 
+    // Atualizar último login
+    user.lastLogin = new Date();
+    await user.save();
+
     // Calcular se a subscrição está ativa
     const plan = user.vendorInfo?.subscription?.plan;
     const expiryDate = user.vendorInfo?.subscription?.expiryDate;

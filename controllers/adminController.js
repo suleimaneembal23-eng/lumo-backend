@@ -64,3 +64,58 @@ exports.getDashboardStats = async (req, res) => {
         res.status(500).json({ message: "Erro ao buscar estatísticas", error: error.message });
     }
 };
+
+// Obter todos os administradores
+exports.getAdmins = async (req, res) => {
+    try {
+        const admins = await User.find({ role: "admin" }).select("-password").sort({ lastLogin: -1 });
+        res.json(admins);
+    } catch (error) {
+        res.status(500).json({ message: "Erro ao buscar admins", error: error.message });
+    }
+};
+
+// Apagar um administrador
+exports.deleteAdmin = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { masterSecret } = req.body;
+        const reqAdminId = req.user.id;
+
+        const currentAdmin = await User.findById(reqAdminId);
+        if (!currentAdmin) return res.status(404).json({ message: "Administrador atual não encontrado." });
+
+        if (currentAdmin.adminLockUntil && currentAdmin.adminLockUntil > new Date()) {
+            return res.status(429).json({ message: "Ação bloqueada. Demasiadas tentativas." });
+        }
+
+        const SERVER_MASTER_SECRET = process.env.MASTER_ADMIN_SECRET || "Lumo2026MasterKey!";
+        
+        if (masterSecret !== SERVER_MASTER_SECRET) {
+            currentAdmin.failedAdminAttempts = (currentAdmin.failedAdminAttempts || 0) + 1;
+            if (currentAdmin.failedAdminAttempts >= 5) {
+                currentAdmin.adminLockUntil = new Date(Date.now() + 24 * 60 * 60 * 1000);
+            }
+            await currentAdmin.save();
+            return res.status(403).json({ message: "Chave Mestra inválida." });
+        }
+
+        currentAdmin.failedAdminAttempts = 0;
+        currentAdmin.adminLockUntil = null;
+        await currentAdmin.save();
+
+        if (id === reqAdminId) {
+            return res.status(400).json({ message: "Não podes apagar a tua própria conta enquanto estás ligado." });
+        }
+
+        const adminToDelete = await User.findById(id);
+        if (!adminToDelete || adminToDelete.role !== 'admin') {
+            return res.status(404).json({ message: "Administrador não encontrado." });
+        }
+
+        await User.findByIdAndDelete(id);
+        res.json({ message: "Administrador removido com sucesso." });
+    } catch (error) {
+        res.status(500).json({ message: "Erro ao remover administrador", error: error.message });
+    }
+};

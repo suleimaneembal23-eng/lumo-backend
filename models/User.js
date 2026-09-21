@@ -10,8 +10,9 @@ const userSchema = new mongoose.Schema({
   isBlocked: { type: Boolean, default: false }, // bloqueio do cliente
 
   // -------------------------------------------------------------
-  // 🛡️ SEGURANÇA E BLOQUEIOS
+  // 🛡️ SEGURANÇA E BLOQUEIOS E ATIVIDADE
   // -------------------------------------------------------------
+  lastLogin: { type: Date, default: null },
   failedAdminAttempts: { type: Number, default: 0 },
   adminLockUntil: { type: Date, default: null },
 
