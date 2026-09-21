@@ -27,7 +27,7 @@ const generateItemsListHtml = (order) => {
 
 exports.sendOrderConfirmation = async (user, order) => {
   try {
-    const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
+    const FRONTEND_URL = process.env.FRONTEND_URL || "https://lumobissau.com";
     
     const { data, error } = await resend.emails.send({
       from: SENDER_EMAIL,
@@ -110,7 +110,7 @@ exports.sendOrderConfirmation = async (user, order) => {
 exports.sendNewOrderAdminNotification = async (order) => {
   try {
     const User = require('../models/User');
-    const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
+    const FRONTEND_URL = process.env.FRONTEND_URL || "https://lumobissau.com";
     
     // Buscar todos os admins na BD
     const admins = await User.find({ role: 'admin' });
