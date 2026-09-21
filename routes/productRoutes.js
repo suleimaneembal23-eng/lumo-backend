@@ -11,6 +11,7 @@ const {
     getCategories,
     getVendorProducts,
     getPublicStore,
+    getRelatedProducts,
 } = require('../controllers/productController');
 
 const verifyToken = require('../middleware/verifyToken');

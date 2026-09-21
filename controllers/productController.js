@@ -221,3 +221,35 @@ exports.getPublicStore = async (req, res) => {
         res.status(500).json({ message: "Erro ao carregar loja", error: error.message });
     }
 };
+
+exports.getRelatedProducts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if the ID is valid
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "ID de produto inválido." });
+    }
+
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Produto não encontrado." });
+    }
+
+    // Achar produtos da mesma categoria, excluindo o produto atual
+    let query = { _id: { $ne: id } };
+    
+    if (product.category && product.category.length > 0) {
+        query.category = { $in: product.category };
+    }
+
+    // Limitar a 4 produtos
+    const relatedProducts = await Product.find(query).limit(4);
+
+    res.json(relatedProducts);
+  } catch (err) {
+    console.error("getRelatedProducts error:", err);
+    res.status(500).json({ error: "Erro ao procurar produtos relacionados." });
+  }
+};
