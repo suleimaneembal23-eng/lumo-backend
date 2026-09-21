@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { sendAdminWelcomeEmail, sendClientWelcomeEmail } = require("../utils/emailService");
 
 const JWT_SECRET = process.env.JWT_SECRET || "Comiocudequemleu";
 
@@ -25,6 +26,9 @@ const registerClient = async (req, res) => {
       password: hashedPassword,
       role: "client",
     });
+
+    // Enviar email de boas vindas
+    await sendClientWelcomeEmail(user);
 
     res.status(201).json({
       _id: user._id,
@@ -93,6 +97,9 @@ const registerAdmin = async (req, res) => {
       password: hashedPassword,
       role: "admin",
     });
+
+    // Enviar email de boas vindas com password
+    await sendAdminWelcomeEmail(admin, password);
 
     res.status(201).json({
       _id: admin._id,

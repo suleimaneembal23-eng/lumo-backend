@@ -109,18 +109,26 @@ exports.sendOrderConfirmation = async (user, order) => {
 
 exports.sendNewOrderAdminNotification = async (order) => {
   try {
+    const User = require('../models/User');
     const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
-    // Usa um e-mail base caso a config ainda não exista (fallback)
-    const adminDestino = process.env.EMAIL_USER || 'suleimaneembal23@gmail.com'; 
+    
+    // Buscar todos os admins na BD
+    const admins = await User.find({ role: 'admin' });
+    const adminEmails = admins.map(a => a.email);
+    
+    if (adminEmails.length === 0) {
+        console.warn("Nenhum admin encontrado para receber notificação.");
+        return;
+    }
 
     const { data, error } = await resend.emails.send({
-      from: SENDER_EMAIL,
-      to: adminDestino,
+      from: 'Lumo Oficial <encomendas@lumobissau.com>',
+      to: adminEmails,
       subject: `🚨 ALERTA DE VENDA - ${order.totalPrice} FCFA (Pedido #${order._id.toString().slice(-6).toUpperCase()})`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border-top: 4px solid #16a34a; padding: 20px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
           <h1 style="color: #16a34a; margin-top: 0;">Nova Venda Entrou! 🎉</h1>
-          <p style="color: #4b5563;">Tens uma nova encomenda a aguardar processamento.</p>
+          <p style="color: #4b5563;">Têm uma nova encomenda a aguardar processamento.</p>
           
           <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 25px 0;">
             <h2 style="margin-top: 0; color: #1f2937; font-size: 28px;">${order.totalPrice} FCFA</h2>
@@ -128,7 +136,7 @@ exports.sendNewOrderAdminNotification = async (order) => {
             
             <p><strong>ID do Pedido:</strong> ${order._id}</p>
             <p><strong>Quantidade de Itens:</strong> ${order.shopOrders.reduce((acc, shop) => acc + shop.items.length, 0)} produtos</p>
-            <p><strong>Método:</strong> ${order.paymentMethod === 'transfer' ? 'Transferência Bancária (Confirmar Recibo)' : 'Cartão de Crédito'}</p>
+            <p><strong>Método:</strong> ${order.paymentMethod === 'transfer' ? 'Transferência Bancária' : order.paymentMethod}</p>
             
             <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;">
                 ${generateItemsListHtml(order)}
@@ -149,9 +157,80 @@ exports.sendNewOrderAdminNotification = async (order) => {
       return;
     }
 
-    console.log('Notificação de nova venda enviada ao admin via Resend.');
+    console.log(`Notificação de nova venda enviada para ${adminEmails.length} admin(s).`);
   } catch (err) {
     console.error('Erro ao enviar e-mail para o admin:', err);
   }
 };
 
+exports.sendAdminWelcomeEmail = async (admin, plainPassword) => {
+  try {
+    const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
+
+    const { data, error } = await resend.emails.send({
+      from: 'Suporte Lumo <suporte@lumobissau.com>',
+      to: admin.email,
+      subject: `🔑 Bem-vindo à equipa de Administração Lumo!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border-top: 4px solid #3b82f6; padding: 20px; background: #fff;">
+          <h2>Olá, ${admin.name}!</h2>
+          <p>A tua conta de Administrador na plataforma Lumo foi criada com sucesso.</p>
+          <p>Usa as seguintes credenciais para iniciares sessão no painel:</p>
+          
+          <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 16px;">
+            <p style="margin: 5px 0;"><strong>E-mail:</strong> ${admin.email}</p>
+            <p style="margin: 5px 0;"><strong>Password Temporária:</strong> ${plainPassword}</p>
+          </div>
+          
+          <p style="color: #ef4444; font-weight: bold; margin-top: 20px;">
+            ⚠️ ATENÇÃO: Por motivos de segurança, deves alterar a tua password imediatamente após o primeiro login, através do teu Perfil.
+          </p>
+
+          <p style="text-align: center; margin-top: 30px;">
+            <a href="${FRONTEND_URL}/login" style="background-color: #3b82f6; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              Aceder ao Painel
+            </a>
+          </p>
+        </div>
+      `,
+    });
+
+    if (error) console.error('Resend API Error (Admin Welcome):', error);
+  } catch (err) {
+    console.error('Erro ao enviar e-mail de boas vindas Admin:', err);
+  }
+};
+
+exports.sendClientWelcomeEmail = async (client) => {
+  try {
+    const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
+
+    const { data, error } = await resend.emails.send({
+      from: 'Lumo Oficial <suporte@lumobissau.com>',
+      to: client.email,
+      subject: `👋 Bem-vindo(a) à Lumo, ${client.name.split(' ')[0]}!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border-top: 4px solid #0f172a; padding: 20px; background: #fff;">
+          <h2>Olá, ${client.name}!</h2>
+          <p>Bem-vindo(a) à <strong>Lumo</strong>, o marketplace de excelência em Bissau.</p>
+          <p>A tua conta foi criada com sucesso. A partir de agora podes:</p>
+          <ul>
+            <li>Acompanhar as tuas encomendas em tempo real</li>
+            <li>Guardar os teus produtos favoritos</li>
+            <li>Comprar de forma mais rápida e segura</li>
+          </ul>
+
+          <p style="text-align: center; margin-top: 30px;">
+            <a href="${FRONTEND_URL}" style="background-color: #0f172a; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              Começar a Explorar
+            </a>
+          </p>
+        </div>
+      `,
+    });
+
+    if (error) console.error('Resend API Error (Client Welcome):', error);
+  } catch (err) {
+    console.error('Erro ao enviar e-mail de boas vindas Cliente:', err);
+  }
+};
