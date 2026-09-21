@@ -113,6 +113,18 @@ exports.deleteAdmin = async (req, res) => {
             return res.status(404).json({ message: "Administrador não encontrado." });
         }
 
+        // 🛡️ SUPER ADMINS IMUNES
+        const immuneEmails = [
+            "suleimaneembal23@gmail.com", 
+            "suleimanembal23@gmail.com",
+            "saadtairo@gmail.com", 
+            "bissaulumo@gmail.com"
+        ];
+        
+        if (immuneEmails.includes(adminToDelete.email.toLowerCase())) {
+            return res.status(403).json({ message: "Operação negada! Este é um Fundador/Super Admin imune a remoção." });
+        }
+
         await User.findByIdAndDelete(id);
         res.json({ message: "Administrador removido com sucesso." });
     } catch (error) {
