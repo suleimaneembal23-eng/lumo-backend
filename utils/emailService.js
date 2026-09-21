@@ -9,6 +9,9 @@ const generateItemsListHtml = (order) => {
     shop.items.forEach(item => {
       itemsHtml += `
         <tr>
+          <td style="padding: 12px; border-bottom: 1px solid #eee; width: 60px;">
+            ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />` : ''}
+          </td>
           <td style="padding: 12px; border-bottom: 1px solid #eee;">
             <p style="margin: 0; font-weight: bold; color: #333;">${item.name}</p>
             <p style="margin: 4px 0 0 0; font-size: 12px; color: #666;">
@@ -27,7 +30,7 @@ const generateItemsListHtml = (order) => {
 
 exports.sendOrderConfirmation = async (user, order) => {
   try {
-    const FRONTEND_URL = process.env.FRONTEND_URL || "https://lumobissau.com";
+    const FRONTEND_URL = "https://lumobissau.com";
     
     const { data, error } = await resend.emails.send({
       from: SENDER_EMAIL,
@@ -110,7 +113,7 @@ exports.sendOrderConfirmation = async (user, order) => {
 exports.sendNewOrderAdminNotification = async (order) => {
   try {
     const User = require('../models/User');
-    const FRONTEND_URL = process.env.FRONTEND_URL || "https://lumobissau.com";
+    const FRONTEND_URL = "https://lumobissau.com";
     
     // Buscar todos os admins na BD
     const admins = await User.find({ role: 'admin' });
@@ -165,7 +168,7 @@ exports.sendNewOrderAdminNotification = async (order) => {
 
 exports.sendAdminWelcomeEmail = async (admin, plainPassword) => {
   try {
-    const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
+    const FRONTEND_URL = "https://lumobissau.com";
 
     const { data, error } = await resend.emails.send({
       from: 'Suporte Lumo <suporte@lumobissau.com>',
@@ -203,7 +206,7 @@ exports.sendAdminWelcomeEmail = async (admin, plainPassword) => {
 
 exports.sendClientWelcomeEmail = async (client) => {
   try {
-    const FRONTEND_URL = process.env.FRONTEND_URL || "https://camisashop-frontend.netlify.app";
+    const FRONTEND_URL = process.env.FRONTEND_URL || "https://lumobissau.com";
 
     const { data, error } = await resend.emails.send({
       from: 'Lumo Oficial <suporte@lumobissau.com>',
